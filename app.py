@@ -199,6 +199,14 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
                 type="pil",
                 height=400
             )
+            
+            # Add download button to match the height of upload controls
+            download_btn = gr.DownloadButton(
+                label="📥 Download Depth Map",
+                variant="secondary",
+                size="sm",
+                visible=False
+            )
     
     # Function to switch between upload and camera input
     def switch_input_source(source):
@@ -217,9 +225,18 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     # Function to handle both input sources
     def handle_prediction(input_source, upload_img, camera_img, colormap):
         if input_source == "Upload Image":
-            return predict_depth(upload_img, colormap)
+            result = predict_depth(upload_img, colormap)
         else:
-            return predict_depth(camera_img, colormap)
+            result = predict_depth(camera_img, colormap)
+        
+        # Show download button when depth map is generated
+        if result is not None:
+            # Save result to temporary file for download
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+            result.save(temp_file.name)
+            return result, gr.update(visible=True, value=temp_file.name)
+        else:
+            return None, gr.update(visible=False)
     
     # Examples section
     gr.Examples(
@@ -239,7 +256,7 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     submit_btn.click(
         fn=handle_prediction,
         inputs=[input_source, upload_image, camera_image, colormap_choice],
-        outputs=output_image,
+        outputs=[output_image, download_btn],
         show_progress=True
     )
     
