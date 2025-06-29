@@ -141,7 +141,16 @@ def capture_and_predict(camera_image, colormap_choice):
     return predict_depth(camera_image, colormap_choice)
 
 
-with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.themes.Soft()) as demo:
+with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.themes.Soft(), css="""
+    .image-container { 
+        display: flex !important; 
+        align-items: flex-start !important; 
+        justify-content: center !important; 
+    }
+    .gradio-image { 
+        vertical-align: top !important; 
+    }
+""") as demo:
     gr.Markdown("""
     # 🌊 Depth Anything AC - Depth Estimation Demo
     
@@ -173,31 +182,41 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
             size="lg"
         )
     
-    # Images row - perfectly aligned
+    # Labels row
     with gr.Row():
-        with gr.Column(scale=1, min_width=400):
+        gr.HTML("<h3 style='text-align: center; margin: 10px;'>📷 Input Image</h3>")
+        gr.HTML("<h3 style='text-align: center; margin: 10px;'>🌊 Depth Map Result</h3>")
+    
+    # Images row - force vertical alignment
+    with gr.Row(equal_height=True):
+        # Left column for input
+        with gr.Column(scale=1):
             # Upload image component
             upload_image = gr.Image(
-                label="Input Image",
                 type="pil",
-                height=400,
-                visible=True
+                height=450,
+                visible=True,
+                show_label=False,
+                container=False
             )
             
             # Camera component
             camera_image = gr.Image(
-                label="Camera Input",
                 type="pil", 
                 sources=["webcam"],
-                height=400,
-                visible=False
+                height=450,
+                visible=False,
+                show_label=False,
+                container=False
             )
             
-        with gr.Column(scale=1, min_width=400):
+        # Right column for output
+        with gr.Column(scale=1):
             output_image = gr.Image(
-                label="Depth Map Result",
                 type="pil",
-                height=400
+                height=450,
+                show_label=False,
+                container=False
             )
             
             # Add download button to match the height of upload controls
