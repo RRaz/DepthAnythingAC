@@ -155,7 +155,7 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     5. View the results and download
     """)
     
-    with gr.Row():
+    with gr.Row(equal_height=True):
         with gr.Column(scale=1):
             # Input source selection
             input_source = gr.Radio(
@@ -168,8 +168,10 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
             upload_image = gr.Image(
                 label="Upload Image",
                 type="pil",
-                height=450,
-                visible=True
+                height=500,
+                visible=True,
+                container=True,
+                show_label=True
             )
             
             # Camera component
@@ -177,8 +179,10 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
                 label="Camera Input",
                 type="pil", 
                 sources=["webcam"],
-                height=450,
-                visible=False
+                height=500,
+                visible=False,
+                container=True,
+                show_label=True
             )
             
             colormap_choice = gr.Dropdown(
@@ -197,7 +201,9 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
             output_image = gr.Image(
                 label="Depth Map Result",
                 type="pil",
-                height=450
+                height=500,
+                container=True,
+                show_label=True
             )
     
     # Function to switch between upload and camera input
