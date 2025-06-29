@@ -155,23 +155,33 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     5. View the results and download
     """)
     
-    with gr.Row(equal_height=True):
-        with gr.Column(scale=1):
-            # Input source selection
-            input_source = gr.Radio(
-                choices=["Upload Image", "Use Camera"],
-                value="Upload Image",
-                label="Input Source"
-            )
-            
+    # Input controls row
+    with gr.Row():
+        input_source = gr.Radio(
+            choices=["Upload Image", "Use Camera"],
+            value="Upload Image",
+            label="Input Source"
+        )
+        colormap_choice = gr.Dropdown(
+            choices=["Spectral", "Inferno", "Gray"],
+            value="Spectral",
+            label="Colormap Style"
+        )
+        submit_btn = gr.Button(
+            "🎯 Generate Depth Map",
+            variant="primary",
+            size="lg"
+        )
+    
+    # Images row - perfectly aligned
+    with gr.Row():
+        with gr.Column(scale=1, min_width=400):
             # Upload image component
             upload_image = gr.Image(
-                label="Upload Image",
+                label="Input Image",
                 type="pil",
-                height=500,
-                visible=True,
-                container=True,
-                show_label=True
+                height=400,
+                visible=True
             )
             
             # Camera component
@@ -179,31 +189,15 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
                 label="Camera Input",
                 type="pil", 
                 sources=["webcam"],
-                height=500,
-                visible=False,
-                container=True,
-                show_label=True
+                height=400,
+                visible=False
             )
             
-            colormap_choice = gr.Dropdown(
-                choices=["Spectral", "Inferno", "Gray"],
-                value="Spectral",
-                label="Colormap Style"
-            )
-            
-            submit_btn = gr.Button(
-                "🎯 Generate Depth Map",
-                variant="primary",
-                size="lg"
-            )
-            
-        with gr.Column(scale=1):
+        with gr.Column(scale=1, min_width=400):
             output_image = gr.Image(
                 label="Depth Map Result",
                 type="pil",
-                height=500,
-                container=True,
-                show_label=True
+                height=400
             )
     
     # Function to switch between upload and camera input
