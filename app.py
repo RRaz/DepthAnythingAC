@@ -111,6 +111,10 @@ print("Model loaded successfully!")
 def predict_depth(input_image, colormap_choice):
     """Main depth prediction function"""
     try:
+        # Handle case when no image is provided
+        if input_image is None:
+            return None
+            
         image_tensor, original_size = preprocess_image(input_image)
         
         if torch.cuda.is_available():
@@ -132,31 +136,55 @@ def predict_depth(input_image, colormap_choice):
         return None
 
 
+def capture_and_predict(camera_image, colormap_choice):
+    """Capture image from camera and predict depth"""
+    return predict_depth(camera_image, colormap_choice)
+
+
 with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
     # 🌊 Depth Anything AC - Depth Estimation Demo
     
-    Upload an image and AI will generate the corresponding depth map! Different colors in the depth map represent different distances, allowing you to see the three-dimensional structure of the image.
+    Upload an image or use your camera to generate corresponding depth maps! Different colors in the depth map represent different distances, allowing you to see the three-dimensional structure of the image.
     
     ## How to Use
-    1. Click the upload area to select an image
-    2. Choose your preferred colormap style
-    3. Click the "Generate Depth Map" button
-    4. View the results and download
+    1. **Upload Mode**: Click the upload area to select an image file
+    2. **Camera Mode**: Use your camera to capture a live image
+    3. Choose your preferred colormap style
+    4. Click the "Generate Depth Map" button
+    5. View the results and download
     """)
     
     with gr.Row():
-        with gr.Column():
-            input_image = gr.Image(
+        with gr.Column(scale=1):
+            # Input source selection
+            input_source = gr.Radio(
+                choices=["Upload Image", "Use Camera"],
+                value="Upload Image",
+                label="Input Source"
+            )
+            
+            # Upload image component
+            upload_image = gr.Image(
                 label="Upload Image",
                 type="pil",
-                height=400
+                height=450,
+                visible=True
+            )
+            
+            # Camera component
+            camera_image = gr.Image(
+                label="Camera Input",
+                type="pil", 
+                source="webcam",
+                height=450,
+                visible=False
             )
             
             colormap_choice = gr.Dropdown(
                 choices=["Spectral", "Inferno", "Gray"],
                 value="Spectral",
-                label="Colormap"
+                label="Colormap Style"
             )
             
             submit_btn = gr.Button(
@@ -165,38 +193,66 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
                 size="lg"
             )
             
-        with gr.Column():
+        with gr.Column(scale=1):
             output_image = gr.Image(
                 label="Depth Map Result",
                 type="pil",
-                height=400
+                height=450
             )
     
+    # Function to switch between upload and camera input
+    def switch_input_source(source):
+        if source == "Upload Image":
+            return gr.update(visible=True), gr.update(visible=False)
+        else:
+            return gr.update(visible=False), gr.update(visible=True)
+    
+    # Update visibility based on input source selection
+    input_source.change(
+        fn=switch_input_source,
+        inputs=[input_source],
+        outputs=[upload_image, camera_image]
+    )
+    
+    # Function to handle both input sources
+    def handle_prediction(input_source, upload_img, camera_img, colormap):
+        if input_source == "Upload Image":
+            return predict_depth(upload_img, colormap)
+        else:
+            return predict_depth(camera_img, colormap)
+    
+    # Examples section
     gr.Examples(
         examples=[
             ["toyset/1.png", "Spectral"],
             ["toyset/2.png", "Spectral"],
             ["toyset/good.png", "Spectral"],
         ] if os.path.exists("toyset") else [],
-        inputs=[input_image, colormap_choice],
+        inputs=[upload_image, colormap_choice],
         outputs=output_image,
         fn=predict_depth,
         cache_examples=False,
         label="Try these example images"
     )
     
+    # Submit button click handler
     submit_btn.click(
-        fn=predict_depth,
-        inputs=[input_image, colormap_choice],
+        fn=handle_prediction,
+        inputs=[input_source, upload_image, camera_image, colormap_choice],
         outputs=output_image,
         show_progress=True
     )
     
     gr.Markdown("""
-    ## 📝 Notes
+    ## 📝 Color Map Descriptions
     - **Spectral**: Rainbow spectrum with distinct near-far contrast
-    - **Inferno**: Flame spectrum with warm tones
-    - **Gray**: Grayscale with classic effect
+    - **Inferno**: Flame spectrum with warm tones  
+    - **Gray**: Classic grayscale depth representation
+    
+    ## 📷 Camera Tips
+    - Make sure to allow camera access when prompted
+    - Click the camera button to capture the current frame
+    - The captured image will be used as input for depth estimation
     """)
 
 
