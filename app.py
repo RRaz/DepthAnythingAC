@@ -176,7 +176,7 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
             camera_image = gr.Image(
                 label="Camera Input",
                 type="pil", 
-                source="webcam",
+                sources=["webcam"],
                 height=450,
                 visible=False
             )
