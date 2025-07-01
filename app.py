@@ -166,6 +166,11 @@ def predict_depth(input_image, colormap_choice):
         return None
 
 
+def clear_results():
+    """Clear the output image"""
+    return None
+
+
 def predict_video_depth(input_video, colormap_choice, progress=gr.Progress()):
     """Main depth prediction function for videos"""
     if input_video is None:
@@ -298,21 +303,34 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
         with gr.TabItem("📷 Image Depth Estimation"):
             # Main image display row with strict alignment
             with gr.Row():
-                input_image = gr.Image(
-                    label="Upload Image",
-                    type="pil",
-                    height=400,
-                    container=True,
-                    scale=1
-                )
+                with gr.Column(scale=1):
+                    input_image = gr.Image(
+                        label="Upload Image",
+                        type="pil",
+                        height=400,
+                        container=True
+                    )
                 
-                output_image = gr.Image(
-                    label="Depth Map Result",
-                    type="pil",
-                    height=400,
-                    container=True,
-                    scale=1
-                )
+                with gr.Column(scale=1):
+                    output_image = gr.Image(
+                        label="Depth Map Result",
+                        type="pil",
+                        height=400,
+                        container=True,
+                        interactive=True
+                    )
+                    # 添加工具栏来保持高度一致
+                    with gr.Row():
+                        download_btn = gr.DownloadButton(
+                            "💾 Download Depth Map",
+                            variant="secondary",
+                            size="sm"
+                        )
+                        clear_btn = gr.Button(
+                            "🗑️ Clear Result",
+                            variant="secondary", 
+                            size="sm"
+                        )
             
             # Controls section in a separate row
             with gr.Row():
@@ -351,19 +369,31 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
         with gr.TabItem("🎬 Video Depth Estimation"):
             # Main video display row with strict alignment
             with gr.Row():
-                input_video = gr.Video(
-                    label="Upload Video",
-                    height=400,
-                    container=True,
-                    scale=1
-                )
+                with gr.Column(scale=1):
+                    input_video = gr.Video(
+                        label="Upload Video",
+                        height=400,
+                        container=True
+                    )
                 
-                output_video = gr.Video(
-                    label="Depth Map Video Result",
-                    height=400,
-                    container=True,
-                    scale=1
-                )
+                with gr.Column(scale=1):
+                    output_video = gr.Video(
+                        label="Depth Map Video Result",
+                        height=400,
+                        container=True
+                    )
+                    # 添加工具栏来保持高度一致
+                    with gr.Row():
+                        video_download_btn = gr.DownloadButton(
+                            "💾 Download Depth Video",
+                            variant="secondary",
+                            size="sm"
+                        )
+                        video_clear_btn = gr.Button(
+                            "🗑️ Clear Result",
+                            variant="secondary", 
+                            size="sm"
+                        )
             
             # Controls section in a separate row
             with gr.Row():
@@ -402,11 +432,23 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
         show_progress=True
     )
     
+    clear_btn.click(
+        fn=clear_results,
+        inputs=[],
+        outputs=output_image
+    )
+    
     video_submit_btn.click(
         fn=predict_video_depth,
         inputs=[input_video, video_colormap_choice],
         outputs=output_video,
         show_progress=True
+    )
+    
+    video_clear_btn.click(
+        fn=clear_results,
+        inputs=[],
+        outputs=output_video
     )
     
     gr.Markdown("""
