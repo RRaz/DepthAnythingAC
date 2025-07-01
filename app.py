@@ -279,7 +279,22 @@ def predict_video_depth(input_video, colormap_choice, progress=gr.Progress()):
         return None
 
 
-with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.themes.Soft()) as demo:
+with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.themes.Soft(), css="""
+.image-container {
+    height: 400px !important;
+    min-height: 400px !important;
+    max-height: 400px !important;
+    display: flex !important;
+    align-items: flex-start !important;
+}
+.video-container {
+    height: 400px !important;
+    min-height: 400px !important;
+    max-height: 400px !important;
+    display: flex !important;
+    align-items: flex-start !important;
+}
+""") as demo:
     gr.Markdown("""
     # 🌊 Depth Anything AC - Depth Estimation Demo
     
@@ -296,23 +311,23 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     with gr.Tabs():
         # Image processing tab
         with gr.TabItem("📷 Image Depth Estimation"):
-            # Main image display row with strict alignment
-            with gr.Row():
-                input_image = gr.Image(
-                    label="Upload Image",
-                    type="pil",
-                    height=400,
-                    container=True,
-                    scale=1
-                )
+            # Main image display row with forced alignment
+            with gr.Row(equal_height=True, variant="panel"):
+                with gr.Column(min_width=400, scale=1):
+                    input_image = gr.Image(
+                        label="Upload Image",
+                        type="pil",
+                        height=400,
+                        elem_classes=["image-container"]
+                    )
                 
-                output_image = gr.Image(
-                    label="Depth Map Result",
-                    type="pil",
-                    height=400,
-                    container=True,
-                    scale=1
-                )
+                with gr.Column(min_width=400, scale=1):
+                    output_image = gr.Image(
+                        label="Depth Map Result",
+                        type="pil",
+                        height=400,
+                        elem_classes=["image-container"]
+                    )
             
             # Controls section in a separate row
             with gr.Row():
@@ -349,21 +364,21 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
         
         # Video processing tab
         with gr.TabItem("🎬 Video Depth Estimation"):
-            # Main video display row with strict alignment
-            with gr.Row():
-                input_video = gr.Video(
-                    label="Upload Video",
-                    height=400,
-                    container=True,
-                    scale=1
-                )
+            # Main video display row with forced alignment
+            with gr.Row(equal_height=True, variant="panel"):
+                with gr.Column(min_width=400, scale=1):
+                    input_video = gr.Video(
+                        label="Upload Video",
+                        height=400,
+                        elem_classes=["video-container"]
+                    )
                 
-                output_video = gr.Video(
-                    label="Depth Map Video Result",
-                    height=400,
-                    container=True,
-                    scale=1
-                )
+                with gr.Column(min_width=400, scale=1):
+                    output_video = gr.Video(
+                        label="Depth Map Video Result",
+                        height=400,
+                        elem_classes=["video-container"]
+                    )
             
             # Controls section in a separate row
             with gr.Row():
