@@ -271,7 +271,7 @@ def predict_depth(input_file, colormap_choice):
         
     except Exception as e:
         print(f"Error during inference: {str(e)}")
-        return None
+        return None, gr.update(visible=False)
 
 
 def capture_and_predict(camera_image, colormap_choice):
@@ -426,14 +426,47 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
             if os.path.exists(f"toyset/{vid_file}"):
                 video_examples.append([f"toyset/{vid_file}", "Spectral"])
     
+    # Function to handle video example selection and auto-switch mode
+    def handle_video_example(video_path, colormap):
+        # Auto-switch to video mode and return the necessary updates
+        return (
+            "Upload Video",  # input_source
+            gr.update(visible=False),  # upload_image
+            gr.update(visible=True, value=video_path),  # upload_file
+            gr.update(visible=False)  # camera_image
+        )
+    
+    # Function to handle image example selection and auto-switch mode
+    def handle_image_example(image, colormap):
+        # Auto-switch to image mode and process the image
+        result = predict_depth(image, colormap)
+        output_image = result[0] if result[0] is not None else None
+        return (
+            "Upload Image",  # input_source
+            gr.update(visible=True, value=image),  # upload_image
+            gr.update(visible=False),  # upload_file
+            gr.update(visible=False),  # camera_image
+            output_image  # output_image
+        )
+    
     if image_examples:
         gr.Examples(
             examples=image_examples,
             inputs=[upload_image, colormap_choice],
-            outputs=[output_image],
-            fn=lambda image, colormap: predict_depth(image, colormap)[0] if predict_depth(image, colormap) else None,
+            outputs=[input_source, upload_image, upload_file, camera_image, output_image],
+            fn=handle_image_example,
             cache_examples=False,
             label="Try these example images"
+        )
+    
+    if video_examples:
+        gr.Examples(
+            examples=video_examples,
+            inputs=[upload_file, colormap_choice],
+            outputs=[input_source, upload_image, upload_file, camera_image],
+            fn=handle_video_example,
+            cache_examples=False,
+            label="Try these example videos"
         )
     
     submit_btn.click(
