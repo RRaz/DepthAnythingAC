@@ -42,3 +42,4 @@ toyset/good.png filter=lfs diff=lfs merge=lfs -text
 toyset/fog_2_processed_1s-6s_1.0x.mp4 filter=lfs diff=lfs merge=lfs -text
 toyset/snow_processed_1s-6s_1.0x.mp4 filter=lfs diff=lfs merge=lfs -text
 toyset/fog filter=lfs diff=lfs merge=lfs -text
+toyset/snow.mp4 filter=lfs diff=lfs merge=lfs -text
