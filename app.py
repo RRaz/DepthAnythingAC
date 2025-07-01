@@ -304,7 +304,7 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     
     with gr.Row():
         input_source = gr.Radio(
-            choices=["Upload Image", "Use Camera"],
+            choices=["Upload Image", "Upload Video", "Use Camera"],
             value="Upload Image",
             label="Input Source"
         )
@@ -325,13 +325,24 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     
     with gr.Row(equal_height=True):
         with gr.Column(scale=1):
-            upload_file = gr.File(
-                file_types=["image", "video"],
+            # Image input component for preview and examples
+            upload_image = gr.Image(
+                type="pil",
                 height=450,
                 visible=True,
                 show_label=False,
                 container=False,
-                label="Upload Image or Video"
+                label="Upload Image"
+            )
+            
+            # File component for video uploads
+            upload_file = gr.File(
+                file_types=["video"],
+                height=200,
+                visible=False,
+                show_label=False,
+                container=False,
+                label="Upload Video"
             )
             
             # Camera component
@@ -369,18 +380,27 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     
     def switch_input_source(source):
         if source == "Upload Image":
-            return gr.update(visible=True), gr.update(visible=False)
-        else:
-            return gr.update(visible=False), gr.update(visible=True)
+            return gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)
+        elif source == "Upload Video":
+            return gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)
+        else:  # Use Camera
+            return gr.update(visible=False), gr.update(visible=False), gr.update(visible=True)
     
     input_source.change(
         fn=switch_input_source,
         inputs=[input_source],
-        outputs=[upload_file, camera_image]
+        outputs=[upload_image, upload_file, camera_image]
     )
     
-    def handle_prediction(input_source, upload_file_path, camera_img, colormap):
+    def handle_prediction(input_source, upload_img, upload_file_path, camera_img, colormap):
         if input_source == "Upload Image":
+            if upload_img is None:
+                return None, None, gr.update(visible=False), gr.update(visible=False)
+            
+            result, download_update = predict_depth(upload_img, colormap)
+            return result, None, gr.update(visible=True), download_update
+            
+        elif input_source == "Upload Video":
             if upload_file_path is None:
                 return None, None, gr.update(visible=False), gr.update(visible=False)
             
@@ -390,33 +410,35 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
                 return None, result, gr.update(visible=False), download_update
             else:
                 return result, None, gr.update(visible=True), download_update
-        else:
+        else:  # Use Camera
             result, download_update = predict_depth(camera_img, colormap)
             return result, None, gr.update(visible=True), download_update
     
-    example_files = []
+    # Separate image and video examples
+    image_examples = []
+    video_examples = []
     if os.path.exists("toyset"):
         for img_file in ["1.png", "2.png", "good.png"]:
             if os.path.exists(f"toyset/{img_file}"):
-                example_files.append([f"toyset/{img_file}", "Spectral"])
+                image_examples.append([f"toyset/{img_file}", "Spectral"])
         
         for vid_file in ["fog_2_processed_1s-6s_1.0x.mp4", "snow_processed_1s-6s_1.0x.mp4"]:
             if os.path.exists(f"toyset/{vid_file}"):
-                example_files.append([f"toyset/{vid_file}", "Spectral"])
+                video_examples.append([f"toyset/{vid_file}", "Spectral"])
     
-    if example_files:
+    if image_examples:
         gr.Examples(
-            examples=example_files,
-            inputs=[upload_file, colormap_choice],
-            outputs=[output_image, output_file],
-            fn=lambda file_path, colormap: predict_depth(file_path, colormap),
+            examples=image_examples,
+            inputs=[upload_image, colormap_choice],
+            outputs=[output_image],
+            fn=lambda image, colormap: predict_depth(image, colormap)[0] if predict_depth(image, colormap) else None,
             cache_examples=False,
-            label="Try these example files"
+            label="Try these example images"
         )
     
     submit_btn.click(
         fn=handle_prediction,
-        inputs=[input_source, upload_file, camera_image, colormap_choice],
+        inputs=[input_source, upload_image, upload_file, camera_image, colormap_choice],
         outputs=[output_image, output_file, output_image, download_btn],
         show_progress=True
     )
