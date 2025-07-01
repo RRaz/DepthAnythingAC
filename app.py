@@ -296,14 +296,24 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     with gr.Tabs():
         # Image processing tab
         with gr.TabItem("📷 Image Depth Estimation"):
-            with gr.Row():
-                with gr.Column():
+            with gr.Row(equal_height=True):
+                with gr.Column(scale=1):
                     input_image = gr.Image(
                         label="Upload Image",
                         type="pil",
                         height=400
                     )
                     
+                with gr.Column(scale=1):
+                    output_image = gr.Image(
+                        label="Depth Map Result",
+                        type="pil",
+                        height=400
+                    )
+            
+            # Controls section below the aligned images
+            with gr.Row():
+                with gr.Column(scale=1):
                     image_colormap_choice = gr.Dropdown(
                         choices=["Spectral", "Inferno", "Gray"],
                         value="Spectral",
@@ -316,17 +326,17 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
                         size="lg"
                     )
                     
-                with gr.Column():
-                    output_image = gr.Image(
-                        label="Depth Map Result",
-                        type="pil",
-                        height=400
-                    )
+                with gr.Column(scale=1):
+                    # Empty column for balance
+                    gr.Markdown("")
             
             gr.Examples(
                 examples=[
                     ["toyset/1.png", "Spectral"],
                     ["toyset/2.png", "Spectral"],
+                    ["toyset/3.png", "Spectral"],
+                    ["toyset/4.png", "Spectral"],
+                    ["toyset/5.png", "Spectral"],
                     ["toyset/good.png", "Spectral"],
                 ] if os.path.exists("toyset") else [],
                 inputs=[input_image, image_colormap_choice],
@@ -338,13 +348,22 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
         
         # Video processing tab
         with gr.TabItem("🎬 Video Depth Estimation"):
-            with gr.Row():
-                with gr.Column():
+            with gr.Row(equal_height=True):
+                with gr.Column(scale=1):
                     input_video = gr.Video(
                         label="Upload Video",
                         height=400
                     )
                     
+                with gr.Column(scale=1):
+                    output_video = gr.Video(
+                        label="Depth Map Video Result",
+                        height=400
+                    )
+            
+            # Controls section below the aligned videos
+            with gr.Row():
+                with gr.Column(scale=1):
                     video_colormap_choice = gr.Dropdown(
                         choices=["Spectral", "Inferno", "Gray"],
                         value="Spectral",
@@ -357,11 +376,9 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
                         size="lg"
                     )
                     
-                with gr.Column():
-                    output_video = gr.Video(
-                        label="Depth Map Video Result",
-                        height=400
-                    )
+                with gr.Column(scale=1):
+                    # Empty column for balance
+                    gr.Markdown("")
             
             gr.Examples(
                 examples=[
