@@ -296,40 +296,41 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
     with gr.Tabs():
         # Image processing tab
         with gr.TabItem("📷 Image Depth Estimation"):
-            with gr.Row(equal_height=True):
-                with gr.Column(scale=1):
-                    input_image = gr.Image(
-                        label="Upload Image",
-                        type="pil",
-                        height=400
-                    )
-                    
-                with gr.Column(scale=1):
-                    output_image = gr.Image(
-                        label="Depth Map Result",
-                        type="pil",
-                        height=400
-                    )
-            
-            # Controls section below the aligned images
+            # Main image display row with strict alignment
             with gr.Row():
-                with gr.Column(scale=1):
+                input_image = gr.Image(
+                    label="Upload Image",
+                    type="pil",
+                    height=400,
+                    container=True,
+                    scale=1
+                )
+                
+                output_image = gr.Image(
+                    label="Depth Map Result",
+                    type="pil",
+                    height=400,
+                    container=True,
+                    scale=1
+                )
+            
+            # Controls section in a separate row
+            with gr.Row():
+                with gr.Column(scale=2):
                     image_colormap_choice = gr.Dropdown(
                         choices=["Spectral", "Inferno", "Gray"],
                         value="Spectral",
                         label="Colormap"
                     )
                     
+                with gr.Column(scale=2):
                     image_submit_btn = gr.Button(
                         "🎯 Generate Image Depth Map",
                         variant="primary",
                         size="lg"
                     )
-                    
-                with gr.Column(scale=1):
-                    # Empty column for balance
-                    gr.Markdown("")
             
+            # Examples section
             gr.Examples(
                 examples=[
                     ["toyset/1.png", "Spectral"],
@@ -348,38 +349,39 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
         
         # Video processing tab
         with gr.TabItem("🎬 Video Depth Estimation"):
-            with gr.Row(equal_height=True):
-                with gr.Column(scale=1):
-                    input_video = gr.Video(
-                        label="Upload Video",
-                        height=400
-                    )
-                    
-                with gr.Column(scale=1):
-                    output_video = gr.Video(
-                        label="Depth Map Video Result",
-                        height=400
-                    )
-            
-            # Controls section below the aligned videos
+            # Main video display row with strict alignment
             with gr.Row():
-                with gr.Column(scale=1):
+                input_video = gr.Video(
+                    label="Upload Video",
+                    height=400,
+                    container=True,
+                    scale=1
+                )
+                
+                output_video = gr.Video(
+                    label="Depth Map Video Result",
+                    height=400,
+                    container=True,
+                    scale=1
+                )
+            
+            # Controls section in a separate row
+            with gr.Row():
+                with gr.Column(scale=2):
                     video_colormap_choice = gr.Dropdown(
                         choices=["Spectral", "Inferno", "Gray"],
                         value="Spectral",
                         label="Colormap"
                     )
                     
+                with gr.Column(scale=2):
                     video_submit_btn = gr.Button(
                         "🎯 Generate Video Depth Map",
                         variant="primary",
                         size="lg"
                     )
-                    
-                with gr.Column(scale=1):
-                    # Empty column for balance
-                    gr.Markdown("")
             
+            # Examples section
             gr.Examples(
                 examples=[
                     ["toyset/fog.mp4", "Spectral"],
