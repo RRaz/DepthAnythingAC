@@ -5,10 +5,12 @@
 
 from enum import Enum
 from typing import Union
+from pathlib import Path
 
 import torch
 
 _DINOV2_BASE_URL = "https://dl.fbaipublicfiles.com/dinov2"
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _make_dinov2_model_name(arch_name: str, patch_size: int, num_register_tokens: int = 0) -> str:
@@ -60,7 +62,7 @@ def _make_dinov2_model(
 
     if pretrained:
         model_full_name = _make_dinov2_model_name(arch_name, patch_size, num_register_tokens)
-        path = "checkpoints" + f"/{model_base_name}/{model_full_name}_pretrain.pth"
+        path = REPO_ROOT / "checkpoints" / model_base_name / f"{model_full_name}_pretrain.pth"
         state_dict = torch.load(path)
         # url = _DINOV2_BASE_URL + f"/{model_base_name}/{model_full_name}_pretrain.pth"
         # state_dict = torch.hub.load_state_dict_from_url(url, map_location="cpu")

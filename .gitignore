@@ -1,2 +1,11 @@
 key628.txt
 key628.txt.pub
+
+.venv/
+.venv-xformers/
+.venv-xformers-cu/
+__pycache__/
+*.py[cod]
+*.log
+logs/
+.idea/

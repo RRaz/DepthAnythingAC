@@ -12,3 +12,10 @@ short_description: This is official demo of Depth Anything At Any Condition
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+
+## Credits
+
+This fork is based on the original DepthAnything-AC project by ghost233lism:
+https://huggingface.co/spaces/ghost233lism/DepthAnything-AC
+
+Modifications in this repository were made by RRaz.

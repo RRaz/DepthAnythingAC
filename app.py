@@ -8,8 +8,11 @@ from PIL import Image
 import tempfile
 import io
 from tqdm import tqdm
+from datetime import datetime
 
 from depth_anything.dpt import DepthAnything_AC
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def normalize_depth(disparity_tensor):
@@ -23,6 +26,9 @@ def normalize_depth(disparity_tensor):
 
 def load_model(model_path='checkpoints/depth_anything_AC_vits.pth', encoder='vits'):
     """Load trained depth estimation model"""
+    if not os.path.isabs(model_path):
+        model_path = os.path.join(BASE_DIR, model_path)
+
     model_configs = {
         'vitl': {'encoder': 'vitl', 'features': 256, 'out_channels': [256, 512, 1024, 1024], 'version': 'v2'},
         'vitb': {'encoder': 'vitb', 'features': 128, 'out_channels': [96, 192, 384, 768], 'version': 'v2'},
@@ -113,14 +119,31 @@ def postprocess_depth(depth_tensor, original_size):
     return depth
 
 
+def save_raw_depth_log(depth, log_dir="logs"):
+    """Save a normalized depth map as a persistent 16-bit PNG log."""
+    os.makedirs(log_dir, exist_ok=True)
+
+    depth_16bit = np.clip(depth, 0.0, 1.0)
+    depth_16bit = (depth_16bit * 65535.0).round().astype(np.uint16)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    log_path = os.path.join(log_dir, f"raw_depth_{timestamp}.png")
+    Image.fromarray(depth_16bit, mode="I;16").save(log_path)
+
+    return log_path
+
+
 def create_colored_depth_map(depth, colormap='spectral'):
     """Create colored depth map"""
+    raw_depth_log_path = save_raw_depth_log(depth)
+    print(f"Saved raw 16-bit depth log: {raw_depth_log_path}")
+
     if colormap == 'inferno':
         depth_colored = cv2.applyColorMap((depth * 255).astype(np.uint8), cv2.COLORMAP_INFERNO)
         depth_colored = cv2.cvtColor(depth_colored, cv2.COLOR_BGR2RGB)
     elif colormap == 'spectral':
-        from matplotlib import cm
-        spectral_cmap = cm.get_cmap('Spectral_r')
+        from matplotlib import colormaps
+        spectral_cmap = colormaps['Spectral_r']
         depth_colored = (spectral_cmap(depth) * 255).astype(np.uint8)
         depth_colored = depth_colored[:, :, :3]
     else:
@@ -255,8 +278,8 @@ def predict_video_depth(input_video, colormap_choice, progress=gr.Progress()):
                     if colormap_choice.lower() == 'inferno':
                         depth_frame = cv2.applyColorMap((depth * 255).astype(np.uint8), cv2.COLORMAP_INFERNO)
                     elif colormap_choice.lower() == 'spectral':
-                        from matplotlib import cm
-                        spectral_cmap = cm.get_cmap('Spectral_r')
+                        from matplotlib import colormaps
+                        spectral_cmap = colormaps['Spectral_r']
                         depth_frame = (spectral_cmap(depth) * 255).astype(np.uint8)
                         depth_frame = cv2.cvtColor(depth_frame, cv2.COLOR_RGBA2BGR)
                     else:  # gray
@@ -466,7 +489,7 @@ with gr.Blocks(title="Depth Anything AC - Depth Estimation Demo", theme=gr.theme
 
 if __name__ == "__main__":
     demo.launch(
-        server_name="0.0.0.0",
+        server_name="127.0.0.1",
         server_port=7860,
         share=False,
         show_error=True
