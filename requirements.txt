@@ -1,3 +1,8 @@
+# CPU only: this project has no CUDA path, and no GPU wheel is needed or wanted.
+# On Windows the default PyPI wheel is already the CPU build (installed here as
+# torch 2.3.0+cpu). On Linux the default wheel pulls the CUDA runtime, so install
+# torch and torchvision from the CPU index instead:
+#     pip install --index-url https://download.pytorch.org/whl/cpu torch==2.3.0 torchvision==0.18.0
 gradio==5.35.0
 torch==2.3.0
 torchvision==0.18.0
