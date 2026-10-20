@@ -9,3 +9,5 @@ __pycache__/
 *.log
 logs/
 .idea/
+depth/
+output/

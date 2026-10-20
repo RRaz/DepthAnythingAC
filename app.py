@@ -44,8 +44,8 @@ def load_model(model_path='checkpoints/depth_anything_AC_vits.pth', encoder='vit
         print(f"Warning: Model file {model_path} not found")
         
     model.eval()
-    if torch.cuda.is_available():
-        model.cuda()
+    # CPU only by design: this fork is a CPU project, so there is no CUDA path to fall
+    # into and no GPU wheel to install. A 16.9 Mpx frame takes about 0.7 s.
     
     return model
 
@@ -170,9 +170,6 @@ def predict_depth(input_image, colormap_choice):
     try:
         image_tensor, original_size = preprocess_image(input_image)
         
-        if torch.cuda.is_available():
-            image_tensor = image_tensor.cuda()
-        
         with torch.no_grad():
             prediction = model(image_tensor)
             disparity_tensor = prediction['out']
@@ -244,8 +241,6 @@ def predict_video_depth(input_video, colormap_choice, progress=gr.Progress()):
             try:
                 # Preprocess current frame
                 image_tensor, original_size = preprocess_image_from_array(frame)
-                if torch.cuda.is_available():
-                    image_tensor = image_tensor.cuda()
                 
                 # Perform depth estimation
                 with torch.no_grad():
